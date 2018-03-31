@@ -65,31 +65,40 @@
         </style>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-                        <a href="{{ route('register') }}">Register</a>
-                    @endauth
-                </div>
-            @endif
+        @if (count(Auth::user()->unreadNotifications))
+            <h4>Notifications</h4>
+            
+            <form action="/users/{{ Auth::id() }}/notifications" method="POST">
+                {{ method_field('DELETE') }}
+                {{ csrf_field() }}
+                <ul>
+                    @foreach(Auth::user()->unreadNotifications as $notification)
+                        <li>Task created at {{ $notification->data['task_created_at']['date'] }}</li>
+                    @endforeach
+                </ul>
+                <button type="submit">Mark all as read</button>
+            </form>
+        @endif
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
-                </div>
+        <h4>Tasks</h4>
+        <ul>
+            @foreach($tasks as $task)
+                <li>
+                    {{ $task->body }}
+                </li>
+            @endforeach
+        </ul>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
+
+        <form method="post" action="/tasks">
+
+            {{ csrf_field() }}
+
+            <div class="form-group">
+                <textarea id="body" name="body" class="form-control"></textarea>
             </div>
-        </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
     </body>
 </html>
